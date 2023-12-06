@@ -6,4 +6,4 @@ Parse nmap output for open ports
 -iL input file 
 
 ## example usage
-  portscribe -iL nmap_output.txt -v
+    portscribe -iL nmap_output.txt -v
