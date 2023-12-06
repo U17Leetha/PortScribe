@@ -1,0 +1,47 @@
+import argparse
+import re
+
+def parse_nmap(input_file, output_file):
+    with open(input_file, 'r') as f:
+        nmap_output = f.read()
+
+    # Use regular expression to capture entire line after "Nmap scan report for"
+    regex = r"Nmap scan report for (.+?)\n(.*?)(?=\n\n|$)"
+    matches = re.finditer(regex, nmap_output, re.DOTALL)
+
+    with open(output_file, 'w') as parsed_file:
+        for match in matches:
+            ip = match.group(1)
+            parsed_file.write(f"Nmap scan report for {ip}\n")
+            
+            # Extract open ports for each IP separately
+            open_ports_regex = r"\d+/tcp\s+(?:open|filtered)\s+\S+"
+            open_ports = re.findall(open_ports_regex, match.group(2), re.DOTALL)
+            for port_info in open_ports:
+                parsed_file.write(port_info + '\n')
+            
+            parsed_file.write('\n')
+
+    print(f"Output written to {output_file}")
+
+def main():
+    parser = argparse.ArgumentParser(description="Parse Nmap output and create a parsed file.")
+    parser.add_argument("-iL", "--input-file", help="Specify the input file containing Nmap output")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Display the parsed results")
+
+    args = parser.parse_args()
+
+    if args.input_file:
+        input_file_name = args.input_file
+    else:
+        input_file_name = input("Enter the name of the input file: ")
+
+    output_file_name = "parsed_nmap.txt"
+    parse_nmap(input_file_name, output_file_name)
+
+    if args.verbose:
+        with open(output_file_name, 'r') as parsed_file:
+            print(parsed_file.read())
+
+if __name__ == "__main__":
+    main()
