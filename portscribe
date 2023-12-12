@@ -13,13 +13,13 @@ def parse_nmap(input_file, output_file):
         for match in matches:
             ip = match.group(1)
             parsed_file.write(f"Nmap scan report for {ip}\n")
-            
-            # Extract open ports for each IP separately
-            open_ports_regex = r"\d+/tcp\s+(?:open|filtered)\s+\S+"
-            open_ports = re.findall(open_ports_regex, match.group(2), re.DOTALL)
-            for port_info in open_ports:
-                parsed_file.write(port_info + '\n')
-            
+
+            # Extract open ports and version information for each IP separately
+            port_info_regex = r"(\d+)/tcp\s+(open)\s+(\S+)\s+((?:[^/]+/[^,]+)|(?:\?\s*$))"
+            port_info = re.findall(port_info_regex, match.group(2), re.DOTALL)
+            for port, state, service, version in port_info:
+                parsed_file.write(f"{port}/tcp\t{state}\t{service}\t{version}\n")
+
             parsed_file.write('\n')
 
     print(f"Output written to {output_file}")
